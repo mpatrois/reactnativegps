@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Button, TextInput } from 'react-native';
+import { View, Button, TextInput, TouchableOpacity, Text } from 'react-native';
 import { AsyncStorage } from "react-native"
 
 class NewPosition extends Component {
@@ -25,20 +25,28 @@ class NewPosition extends Component {
             console.warn(`ERROR(${err.code}): ${err.message}`);
         }
             
-        navigator.geolocation.getCurrentPosition((pos)=>{
-            var crd = pos.coords;
-            console.log(crd);
-            // console.log('Your current position is:');
-            // console.log(`Latitude : ${crd.latitude}`);
-            // console.log(`Longitude: ${crd.longitude}`);
-            // console.log(`More or less ${crd.accuracy} meters.`);
-            this.setState({
-                crd:crd
-            })
-        }, error, options);
+        // navigator.geolocation.getCurrentPosition((pos)=>{
+        //     var crd = pos.coords;
+        //     console.log(crd);
+        //     this.setState({
+        //         crd:crd
+        //     })
+        // }, error, options);
         this.storePosition = this.storePosition.bind(this)
 
     }
+
+    componentDidMount() {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            var crd = position.coords;
+            console.log(crd);
+            this.setState({
+                crd:crd
+            })
+          }
+        );
+      }
 
     async storePosition(){
         // console.log('test')
@@ -55,52 +63,60 @@ class NewPosition extends Component {
             })
             AsyncStorage.setItem('positions', JSON.stringify(positions));
             console.log(positions)
+            
         })
-
-        // try {
-        //     const positions = await AsyncStorage.getItem('positions');
-        //     if (positions == null) {
-        //         positions = []
-        //     }
-        //     positions.push({
-        //         'text' : this.state.text,
-        //         'crd': this.state.crd
-        //     })
-        //     console.log(positions);
-        //     try {
-        //         await AsyncStorage.setItem('postitions', positions);
-        //       } catch (error) {
-        //         // Error saving data
-        //       }
-
-        // } catch (error) {
-        //     // Error retrieving data
-        // }
     }
 
     render() {
         const { navigate } = this.props.navigation;
-        return  (     
-        <View>
-            <TextInput
-                style={{height: 40, borderColor: 'gray', borderWidth: 1}}
-                onChangeText={(text) => this.setState({text})}
-                value={this.state.text}
-                />
-            <Button
-                title="Submit"
-                onPress={() => 
-                // navigate('Infos', { name: 'Jane' })
-                    this.storePosition()
-                }
-            ></Button>
-            <Button
-                title="Go to Historique"
-                onPress={() =>
-                navigate('Historique', { name: 'Jane' })
-                }
-            ></Button>
-        </View>
+        return  ( 
+            <View style={{height: '100%', justifyContent: "space-between"}}>
+                <View >
+                    {
+                        this.state.crd !== null ? (
+                            <View>
+                                <Text>La latitude est : {this.state.crd.latitude }</Text>
+                                <Text>La longitude est : {this.state.crd.longitude }</Text>
+                            </View>
+                        ) : null
+                    
+                    }
+                    <Text>La position est : longitude de {this.state.crd !== null ? this.state.crd.longitude : null} et latitude de {this.state.crd !== null ? this.state.crd.latitude : null}</Text>
+                    <TextInput
+                        style={{height: 250, borderColor: 'gray', borderWidth: 1, padding: 15, margin: 15, borderRadius: 8}}
+                        onChangeText={(text) => this.setState({text})}
+                        value={this.state.text}
+                        multiline = {true}
+                    />
+                    <Button
+                        title="Submit"
+                        containerStyle={{ marginBottom: 100 }}
+                        onPress={() => 
+                            this.storePosition()
+                        }
+                    />
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent:"space-between"}}>
+                    <View style={{width: '45%', alignItems: 'center', backgroundColor: 'powderblue', padding: 15}}>
+                        <TouchableOpacity
+                            onPress={() => 
+                                this.storePosition()
+                            }
+                        >
+                            <Text>New</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{width: '45%', alignItems: 'center', backgroundColor: 'purple', padding: 15}}>
+                       <TouchableOpacity
+                            onPress={() =>
+                                navigate('Historique', { name: 'Jane' })
+                            }
+                        >
+                            <Text style={{color: 'white'}}>Go to Historique</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
         )
     }
   

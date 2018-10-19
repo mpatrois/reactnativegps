@@ -15,7 +15,6 @@ class HistoriqueScreen extends Component {
         }
 
         this.getPositions().then((positions)=>{
-            console.log(positions);
             if(positions!=null){
                 this.setState({
                     positions: JSON.parse(positions)
@@ -37,8 +36,11 @@ class HistoriqueScreen extends Component {
             <View>
                 {this.state.positions.map(function(position, index){
                     return <View>
-                        <Text key={ index }>{position.crd.latitude}
-                        </Text>
+                        {
+                            position.crd !== null ?
+                            <Text key={ index }>{position.crd.latitude}
+                            </Text> : null
+                        }
                         <Text key={ index }>{position.text}
                         </Text>
                     </View>;
